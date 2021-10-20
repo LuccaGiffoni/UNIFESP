@@ -42,6 +42,7 @@ void main()
     switch (userOption)
     {
         int aux;
+        char* plate[6];
 
         case 1:
         createRegister();
@@ -56,9 +57,9 @@ void main()
 
         case 3:
         printf("\nPara fazer a consulta sobre um registro, por favor digite a placa do carro usando somente números e letras, sem o traço: ");
-        scanf("%d", &aux);
+        scanf("%s", &plate);
 
-        verifyRegister(aux);
+        verifyRegister(plate);
         break;
 
         case 4:
@@ -142,14 +143,81 @@ void createRegister()
 }
 
 // Verify a register function
-void verifyRegister(int usersLicensePlate)
+void verifyRegister(char* usersLicensePlate)
 {
     // Cleaning console to keep it user-friendly
     clearConsole();
     printf("-------------------------- Banco de Carros --------------------------\n");
     printf("Verificando Registro:\n");
 
-    leaveOrRestart();
+    // Declaring and opening the file
+    FILE* arquivo = fopen("carros.txt", "r");
+    if(arquivo == NULL)
+    {
+        fprintf(stderr, "Erro ao abrir o arquivo.txt.");
+        return 1;
+    }
+
+    // Declaring variables to help on string division
+    char linha[1024];
+    char* strArray[1024];
+    int i = 0;
+
+    // Dividing string into small string and allocating'em in an array
+    while(fgets(linha, sizeof(linha), arquivo) != NULL)
+    {
+        strArray[i] = &linha;
+        // Verifying success of divide and conquer: printf("%s", strArray[i]);
+        i++;
+    }
+
+    // Searching for my string
+    int l = 0;
+
+    for(int k = 0; k < sizeof(strArray); k++)
+    {
+        if(strstr(strArray[k], usersLicensePlate))
+        {
+            int init_size = strlen(strArray[k]);
+            char delim[] = "/";
+
+            char *ptr = strtok(strArray[k], delim);
+            printf("\n\nDados registrados para o veículo com a placa %s\n\n", usersLicensePlate);
+
+            while(ptr != NULL)
+            {
+                printf("%s\n", ptr);
+                ptr = strtok(NULL, delim);
+            }
+
+            for(int m = 0; m < sizeof(ptr); m++)
+            {
+                while(ptr != NULL)
+                {
+                    switch(m)
+                    {
+                        case 0:
+                        printf("Placa: %s", ptr);
+                        // ptr = strtok(NULL, delim);
+                        break;
+
+                        case 1:
+                        printf("Marca: %s", ptr);
+                        // ptr = strtok(NULL, delim);
+                        break;
+                    }
+                }
+            }
+
+            break;
+        }
+        else
+        {
+            continue;
+        }
+
+        k++;
+    }
 }
 
 // Edit a register function
